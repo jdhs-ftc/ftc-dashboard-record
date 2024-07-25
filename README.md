@@ -1,6 +1,7 @@
 # FTC Dashboard Replay
 
 
+
 FTC Dashboard provides telemetry and monitoring tools for FTC robots during operation with the following features:
 
 - Live telemetry with plots and field graphics
