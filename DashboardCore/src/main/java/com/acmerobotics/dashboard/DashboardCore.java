@@ -15,10 +15,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -105,15 +102,17 @@ public class DashboardCore {
         telemetryExecutorService =
             Executors.newSingleThreadExecutor(r -> new Thread(r, "dash telemetry"));
         telemetryExecutorService.submit(new TelemetryUpdateRunnable());
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(replayFilePath, true);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (replayEnabled) {
+            FileWriter fw;
+            try {
+                fw = new FileWriter(replayFilePath, true);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            BufferedWriter bw = new BufferedWriter(fw);
+            replayWriter = new PrintWriter(bw);
+            replayWriter.flush();
         }
-        BufferedWriter bw = new BufferedWriter(fw);
-        replayWriter = new PrintWriter(bw);
-        replayWriter.flush();
     }
 
     public SocketHandler newSocket(final SendFun sendFun) {
@@ -290,7 +289,7 @@ public class DashboardCore {
             replayWriter.println(System.currentTimeMillis());
             replayWriter.println(DashboardCore.GSON.toJson(message));
         }
-        System.out.println(DashboardCore.GSON.toJson(message));
+        //System.out.println(DashboardCore.GSON.toJson(message));
 
         sockets.with(l -> {
             for (SendFun sf : l) {
