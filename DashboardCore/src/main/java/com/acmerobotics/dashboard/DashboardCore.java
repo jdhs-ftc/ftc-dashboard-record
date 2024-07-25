@@ -114,6 +114,23 @@ public class DashboardCore {
             replayWriter.flush();
         }
     }
+    public DashboardCore(boolean replayEnabled) {
+        this.replayEnabled = replayEnabled;
+        telemetryExecutorService =
+                Executors.newSingleThreadExecutor(r -> new Thread(r, "dash telemetry"));
+        telemetryExecutorService.submit(new TelemetryUpdateRunnable());
+        if (replayEnabled) {
+            FileWriter fw;
+            try {
+                fw = new FileWriter(replayFilePath, true);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            BufferedWriter bw = new BufferedWriter(fw);
+            replayWriter = new PrintWriter(bw);
+            replayWriter.flush();
+        }
+    }
 
     public SocketHandler newSocket(final SendFun sendFun) {
         return new SocketHandler() {
